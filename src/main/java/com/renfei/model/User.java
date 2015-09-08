@@ -2,6 +2,8 @@ package com.renfei.model;
 
 import lombok.Data;
 
+import javax.persistence.*;
+
 /**
  * Created with IntelliJ IDEA
  * Author: songrenfei
@@ -9,10 +11,28 @@ import lombok.Data;
  * Time: 下午11:49
  */
 @Data
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
+    private String email;
+
+    // Public methods
+
+    public User() { }
+
+    public User(long id) {
+        this.id = id;
+    }
+
+    public User(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
 
     @Override
     public boolean equals(Object o) {
