@@ -1,9 +1,10 @@
 package com.renfei;
 
+import com.renfei.configuration.MyConfig;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
@@ -14,12 +15,22 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Time: 下午11:54
  */
 
-/*@Configuration
-@ComponentScan
-@EnableAutoConfiguration*/
+
+/*@Configuration //配置控制
+@ComponentScan  //组件扫描
+@EnableAutoConfiguration*/  //启用自动配置
+@EnableConfigurationProperties(MyConfig.class)
 @SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class);
+public class Application extends SpringBootServletInitializer {
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(Application.class);
     }
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(Application.class, args);
+    }
+
 }
+

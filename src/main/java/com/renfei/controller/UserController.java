@@ -1,17 +1,16 @@
 package com.renfei.controller;
 
-import com.renfei.dao.UserDao;
 import com.renfei.model.User;
+import com.renfei.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -27,107 +26,65 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
-    @RequestMapping("/{id}")
-    public User view(@PathVariable("id") Long id) {
-        User user = new User();
-        user.setId(id);
-        user.setName("zhang");
-        return user;
-    }
+    @Autowired
+    private DataSource dataSource;
 
-    //public static void main(String[] args) {
-    //    SpringApplication.run(UserController.class);
-    //}
-
-    /**
-     * GET /create  --> Create a new user and save it in the database.
-     */
-    @RequestMapping("/create")
-    @ResponseBody
-    public String create(String email, String name) {
-        User user = null;
-        try {
-            user = new User(email, name);
-            userDao.save(user);
-        }
-        catch (Exception ex) {
-            return "Error creating the user: " + ex.toString();
-        }
-        return "User succesfully created! (id = " + user.getId() + ")";
-    }
-
-    /**
-     * GET /delete  --> Delete the user having the passed id.
-     */
-    @RequestMapping("/delete")
-    @ResponseBody
-    public String delete(long id) {
-        try {
-            User user = new User(id);
-            userDao.delete(user);
-        }
-        catch (Exception ex) {
-            return "Error deleting the user:" + ex.toString();
-        }
-        return "User succesfully deleted!";
-    }
-
-    /**
-     * GET /get-by-email  --> Return the id for the user having the passed
-     * email.
-     */
-    @RequestMapping("/get-by-email")
-    @ResponseBody
-    public String getByEmail(@Param("email")String email) {
-        String userId;
-        try {
-            User user = userDao.findByEmail(email);
-            userId = String.valueOf(user.getId());
-        }
-        catch (Exception ex) {
-            return "User not found";
-        }
-        return "The user id is: " + userId;
-    }
-
-    /**
-     * GET /update  --> Update the email and the name for the user in the
-     * database having the passed id.
-     */
-    @RequestMapping("/update")
-    @ResponseBody
-    public String updateUser(long id, String email, String name) {
-        try {
-            User user = userDao.findOne(id);
-            user.setEmail(email);
-            user.setName(name);
-            userDao.save(user);
-        }
-        catch (Exception ex) {
-            return "Error updating the user: " + ex.toString();
-        }
-        return "User succesfully updated!";
-    }
-
-    @RequestMapping("/findAll")
+    @RequestMapping("/all")
     @ResponseBody
     public List<User> findAll() {
-        List<User> list = new ArrayList<User>();
-        try {
-            Iterable<User> users = userDao.findAll();
-            for (Iterator<User> iter =users.iterator();iter.hasNext();){
-                list.add(iter.next());
 
-            }
-            return list;
-        }
-        catch (Exception ex) {
-            System.out.print("查询失败");
-        }
-        return list;
+        return userService.findAll();
     }
+
+    @RequestMapping("/database")
+    @ResponseBody
+    public String database() throws SQLException {
+
+        return dataSource.getConnection().getMetaData().getDatabaseProductName();
+    }
+
+
+    @RequestMapping("/{id}")
+    @ResponseBody
+    public User getUser(@PathVariable(value = "id") String id) {
+
+       return userService.findUser(Long.valueOf(id));
+
+    }
+
+    @RequestMapping("/{id}/insert")
+    @ResponseBody
+    public String setUserName(@PathVariable(value = "id") String id) {
+
+        userService.setUserName(Long.valueOf(id));
+
+        return "ok";
+
+    }
+
+
+    @RequestMapping("/{id}/query")
+    @ResponseBody
+    public String getUserName(@PathVariable(value = "id") String id) {
+
+        return userService.getUserName(Long.valueOf(id));
+
+    }
+
+    @RequestMapping("/{id}/del")
+    @ResponseBody
+    public String delUserName(@PathVariable(value = "id") String id) {
+
+        userService.deleteUserName(Long.valueOf(id));
+
+        return "ok";
+
+    }
+
+
+
 
 
 
